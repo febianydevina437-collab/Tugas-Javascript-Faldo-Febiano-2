@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Putar Musik</title>
+    <style>
+        body {
+            background-image: url('katseye-8k-girl-7986x4499-18512.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 50px 20px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.85);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            letter-spacing: 1.5px;
+            font-size: 28px;
+        }
+
+        .kontrol-pemutar {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #222;
+            border: 2px solid #555;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-radius 0.2s;
+        }
+
+        input[type="text"]:focus {
+            background-color: #333;
+        }
+
+        .custom-list {
+            display: none; 
+            background-color: #333;
+            border: 2px solid #555;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .custom-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.1s;
+        }
+
+        .custom-item:last-child {
+            border-bottom: none;
+        }
+
+        .custom-item:hover {
+            background-color: #444;
+        }
+
+        .custom-item:active {
+            background-color: #1DB954; 
+        }
+
+        .play-btn {
+            width: 100%;
+            background: #1DB954;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+            transition: background 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .play-btn:hover {
+            background: #179b46;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎵 Pilihan Lagu</h1>
+        
+        <div class="kontrol-pemutar">
+            <input type="text" id="kotakCari" placeholder="🔍 Mulai ketik untuk mencari lagu..." oninput="saringDaftar()">
+            <div id="pilihanLagu" class="custom-list"></div>
+        </div>
+        
+        <button class="play-btn" onclick="putarLaguDariTombol()">▶ Putar Lagu</button>
+    </div>
+
+    <script>
+        const playlistLagu = [
+            {
+                judul: "KATSEYE - INTERNET GIRL",
+                srcVideo: "INTERNET GIRL.mp4",
+                srcAudio: "INTERNET GIRL.mp3"
+            },
+            {
+                judul: "KATSEYE - Gabriela",
+                srcVideo: "KATSEYE (캣츠아이) Gabriela Official MV.mp4",
+                srcAudio: "KATSEYE - Gabriela [320 kbps].mp3"
+            },
+            {
+                judul: "KATSEYE - Touch",
+                srcVideo: "KATSEYE (캣츠아이) Touch Official MV.mp4",
+                srcAudio: "KATSEYE - Touch [320 kbps].mp3"
+            },
+            {
+                judul: "ILLIT - It's Me",
+                srcVideo: "ILLIT (아일릿) ‘It’s Me’ Official MV.mp4",
+                srcAudio: "ILLIT - It′s Me [321 kbps].mp3"
+            },
+            {
+                judul: "ILLIT - NOT CUTE ANYMORE (Remix)",
+                srcVideo: "illit.mp4",
+                srcAudio: "ILLIT x 2Pac x Eminem x Kendrick Lamar - Not Cute Anymore (Legendary Edition).mp3"
+            }
+        ];
+
+        const elemenDaftar = document.getElementById("pilihanLagu");
+        const kotakCari = document.getElementById("kotakCari");
+
+        playlistLagu.forEach((lagu) => {
+            let item = document.createElement("div");
+            item.className = "custom-item";
+            item.innerText = lagu.judul;
+            
+            // Cukup 1 kali klik untuk langsung membuka tab player
+            item.onclick = function() {
+                bukaPlayerBaru(lagu.judul, lagu.srcVideo, lagu.srcAudio);
+                
+                elemenDaftar.style.display = "none";
+                kotakCari.style.borderRadius = "8px";
+                kotakCari.value = "";
+            };
+
+            elemenDaftar.appendChild(item);
+        });
+
+        function saringDaftar() {
+            let inputKata = kotakCari.value.toLowerCase();
+            let items = elemenDaftar.getElementsByClassName("custom-item");
+            let adaHasil = false;
+
+            if (inputKata.length > 0) {
+                elemenDaftar.style.display = "block";
+                kotakCari.style.borderRadius = "8px 8px 0 0";
+            } else {
+                elemenDaftar.style.display = "none";
+                kotakCari.style.borderRadius = "8px";
+            }
+
+            for (let i = 0; i < items.length; i++) {
+                let judul = items[i].innerText.toLowerCase();
+                if (judul.includes(inputKata)) {
+                    items[i].style.display = "block";
+                    adaHasil = true;
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+            
+            if (!adaHasil) {
+                elemenDaftar.style.display = "none";
+                kotakCari.style.borderRadius = "8px";
+            }
+        }
+
+        function putarLaguDariTombol() {
+            let inputKata = kotakCari.value;
+            let laguYangAkanDiputar = playlistLagu.find(l => l.judul === inputKata);
+
+            if(laguYangAkanDiputar) {
+                bukaPlayerBaru(laguYangAkanDiputar.judul, laguYangAkanDiputar.srcVideo, laguYangAkanDiputar.srcAudio);
+                
+                elemenDaftar.style.display = "none";
+                kotakCari.style.borderRadius = "8px";
+                kotakCari.value = "";
+            } else {
+                alert("Silakan ketik atau klik pilihan judul lagu yang benar dari daftar!");
+            }
+        }
+
+        function bukaPlayerBaru(judulLagu, fileVideo, fileAudio) {
+            let tabBaru = window.open("", "_blank");
+
+            let desainTabBaru = `
+            <!DOCTYPE html>
+            <html lang="id">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Memutar: ${judulLagu}</title>
+                <style>
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        background-image: url('katseye-8k-girl-7986x4499-18512.jpg');
+                        background-size: cover;
+                        background-position: center;
+                        background-attachment: fixed;
+                        color: #ffffff;
+                        text-align: center;
+                        padding: 40px 20px;
+                        margin: 0;
+                    }
+                    .player-container {
+                        background: rgba(0, 0, 0, 0.85);
+                        max-width: 1000px;
+                        margin: 0 auto;
+                        padding: 40px;
+                        border-radius: 15px;
+                        box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+                        backdrop-filter: blur(10px);
+                    }
+                    .btn-kembali {
+                        background-color: #282828;
+                        color: #ffffff;
+                        border: 1px solid #555;
+                        padding: 10px 20px;
+                        border-radius: 30px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: bold;
+                        margin-bottom: 20px;
+                        transition: all 0.3s ease;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    .btn-kembali:hover {
+                        background-color: #3e3e3e;
+                        border-color: #1DB954;
+                    }
+                    h2 {
+                        color: #1DB954;
+                        margin-top: 10px;
+                        font-size: 28px;
+                        letter-spacing: 1px;
+                    }
+                    p {
+                        color: #b3b3b3;
+                        margin-bottom: 40px;
+                        font-size: 16px;
+                    }
+                    .player-wrapper {
+                        display: flex;
+                        justify-content: center;
+                        align-items: stretch;
+                        gap: 30px;
+                        flex-wrap: wrap;
+                    }
+                    .player-box {
+                        background: rgba(30, 30, 30, 0.7);
+                        padding: 20px;
+                        border-radius: 12px;
+                        border: 1px solid #444;
+                        width: 100%;
+                        max-width: 450px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .player-box h3 {
+                        margin-top: 0;
+                        margin-bottom: 20px;
+                        font-size: 1.2em;
+                        color: #fff;
+                    }
+                    video {
+                        width: 100%;
+                        border-radius: 8px;
+                        background: #000;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                    }
+                    audio {
+                        width: 100%;
+                        outline: none;
+                    }
+                    .icon {
+                        font-size: 60px;
+                        margin-bottom: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="player-container">
+                    <button class="btn-kembali" onclick="window.close()">⬅ Kembali ke Pilihan Lagu</button>
+                    <h2>Sedang Memutar: ${judulLagu}</h2>
+                    <p>Silakan pilih format yang ingin Anda nikmati di bawah ini:</p>
+
+                    <div class="player-wrapper">
+                        <div class="player-box">
+                            <h3>🎬 Versi Video (MP4)</h3>
+                            <video autoplay controls loop>
+                                <source src="${fileVideo}" type="video/mp4">
+                                Browser Anda tidak mendukung pemutar video.
+                            </video>
+                        </div>
+
+                        <div class="player-box">
+                            <h3>🎧 Versi Audio (MP3)</h3>
+                            <div class="icon">🎶</div>
+                            <audio controls>
+                                <source src="${fileAudio}" type="audio/mpeg">
+                                Browser Anda tidak mendukung pemutar audio.
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `;
+
+            tabBaru.document.write(desainTabBaru);
+            tabBaru.document.close();
+        }
+    </script>
+</body>
+</html>
